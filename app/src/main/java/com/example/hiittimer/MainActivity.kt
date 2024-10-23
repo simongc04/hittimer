@@ -1,34 +1,22 @@
 package com.example.hiittimer
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,13 +52,26 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var timeRemaining by remember { mutableLongStateOf(0L) }
     var counterDown: CounterDown? by remember { mutableStateOf(null) }
 
+    val context = LocalContext.current
+    var mediaPlayer by remember { mutableStateOf(MediaPlayer.create(context, R.raw.rest_sound)) }
+
+    fun resetMediaPlayer() {
+        mediaPlayer.reset()
+        mediaPlayer = MediaPlayer.create(context, R.raw.rest_sound)
+    }
+
     fun togglePhase() {
         if (currentPhase == "Trabajo") {
             currentPhase = "Descanso"
             timeRemaining = (restTime.toLong() * 1000) + 1000
+            mediaPlayer.start()
             counterDown = CounterDown(restTime) { newTime ->
                 timeRemaining = newTime
-                if (newTime == 0L) togglePhase()
+                if (newTime == 0L) {
+                    mediaPlayer.stop()
+                    resetMediaPlayer()
+                    togglePhase()
+                }
             }.apply { start() }
         } else {
             if (currentInterval < intervalCount) {
@@ -86,6 +87,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         }
     }
+
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -227,7 +229,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
