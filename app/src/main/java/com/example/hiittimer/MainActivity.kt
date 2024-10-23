@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hiittimer.ui.theme.HIITTimerTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
@@ -43,7 +45,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(modifier: Modifier = Modifier) {
     var intervalCount by remember { mutableIntStateOf(1) }
     var currentInterval by remember { mutableIntStateOf(1) }
-    var timeRemaining by remember { mutableLongStateOf(0L) }
+    var timeRemaining by remember { mutableIntStateOf(0) }
     var timers = remember {
         mutableStateListOf(
             TimerItem("Trabajo", 10),
@@ -51,6 +53,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
         )
     }
     var counter = CounterDown(1L)
+    var isRunning by remember { mutableStateOf(false) }
+    var currentTimerIndex by remember { mutableIntStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -97,14 +102,21 @@ fun MainScreen(modifier: Modifier = Modifier) {
         Button(
             onClick = {
                 if (!isRunning) {
-                    currentInterval = 1
-                    currentPhase = "Trabajo"
-                    timeRemaining = (workTime.toLong() * 1000) + 1000
                     isRunning = true
-                    CounterDown(workTime) { newTime ->
-                        timeRemaining = newTime
-                        if (newTime == 0L) togglePhase()
-                    }.start()
+                    currentTimerIndex = 0
+                    timeRemaining = timers[currentTimerIndex].time
+                    coroutineScope.launch {
+                        while (currentTimerIndex < timers.size) {
+                            val timer = timers[currentTimerIndex]
+                            timeRemaining = timer.time
+                            while (timeRemaining > 0) {
+                                delay(1000L)
+                                timeRemaining--
+                            }
+                            currentTimerIndex++
+                        }
+                        isRunning = false
+                    }
                 }
             },
             modifier = Modifier
@@ -116,6 +128,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 painter = painterResource(id = R.drawable.ic_play),
                 contentDescription = "Play",
                 modifier = Modifier.size(36.dp)
+            )
+        }
+
+        if (isRunning && currentTimerIndex < timers.size) {
+            Text(
+                text = "${timers[currentTimerIndex].title}: ${String.format(Locale.US, "%02d:%02d", timeRemaining / 60, timeRemaining % 60)}",
+                fontSize = 24.sp,
+                modifier = Modifier.padding(top = 16.dp)
             )
         }
     }
