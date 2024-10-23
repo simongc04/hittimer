@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -43,6 +44,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var intervalCount by remember { mutableIntStateOf(1) }
     var currentInterval by remember { mutableIntStateOf(1) }
     var timeRemaining by remember { mutableLongStateOf(0L) }
+    var timers = remember {
+        mutableStateListOf(
+            TimerItem("Trabajo", 10),
+            TimerItem("Descanso", 10)
+        )
+    }
     var counter = CounterDown(1L)
 
     Column(
@@ -72,53 +79,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
             )
         }
 
-        Text(text = "Tiempo de Trabajo", fontSize = 24.sp, modifier = Modifier.padding(top = 24.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "➖",
-                fontSize = 24.sp,
-                modifier = Modifier.clickable { if (workTime > 0) workTime-- }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = String.format(Locale.US, "%02d:%02d", workTime / 60, workTime % 60),
-                fontSize = 36.sp
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "➕",
-                fontSize = 24.sp,
-                modifier = Modifier.clickable { workTime++ }
-            )
-        }
-
-        // Tiempo de Descanso
-        Text(text = "Tiempo de Descanso", fontSize = 24.sp, modifier = Modifier.padding(top = 24.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = "➖",
-                fontSize = 24.sp,
-                modifier = Modifier.clickable { if (restTime > 0) restTime-- }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = String.format(Locale.US, "%02d:%02d", restTime / 60, restTime % 60),
-                fontSize = 36.sp
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "➕",
-                fontSize = 24.sp,
-                modifier = Modifier.clickable { restTime++ }
-            )
+            items(timers.size) { index ->
+                TimerWidget(
+                    title = timers[index].title,
+                    time = timers[index].time,
+                    onIncrease = { timers[index].time++ },
+                    onDecrease = { if (timers[index].time > 0) timers[index].time-- }
+                )
+            }
         }
 
         // Botón de Play
@@ -151,11 +123,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
 // Widget reutilizable de temporizador
 @Composable
-fun TimerSetting(
-    title: String
+fun TimerWidget(
+    title: String,
+    time: Int,
+    onIncrease: () -> Unit,
+    onDecrease: () -> Unit
 ) {
-    var timer by remember { mutableIntStateOf(0) }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(vertical = 16.dp)
@@ -169,18 +142,18 @@ fun TimerSetting(
             Text(
                 text = "➖",
                 fontSize = 24.sp,
-                modifier = Modifier.clickable { if (timer > 0) timer-- }
+                modifier = Modifier.clickable { if (time > 0) onDecrease() }
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = String.format(Locale.US, "%02d:%02d", timer / 60, timer % 60),
+                text = String.format(Locale.US, "%02d:%02d", time / 60, time % 60),
                 fontSize = 36.sp
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "➕",
                 fontSize = 24.sp,
-                modifier = Modifier.clickable { timer++ }
+                modifier = Modifier.clickable { onIncrease() }
             )
         }
     }
