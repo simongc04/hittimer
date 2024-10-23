@@ -149,6 +149,43 @@ fun MainScreen(modifier: Modifier = Modifier) {
     }
 }
 
+// Widget reutilizable de temporizador
+@Composable
+fun TimerSetting(
+    title: String
+) {
+    var timer by remember { mutableIntStateOf(0) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(vertical = 16.dp)
+    ) {
+        Text(text = title, fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "➖",
+                fontSize = 24.sp,
+                modifier = Modifier.clickable { if (timer > 0) timer-- }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = String.format(Locale.US, "%02d:%02d", timer / 60, timer % 60),
+                fontSize = 36.sp
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "➕",
+                fontSize = 24.sp,
+                modifier = Modifier.clickable { timer++ }
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun CounterPreview() {
