@@ -5,15 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,11 +25,11 @@ import java.util.*
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel) {
-    val intervalCount by timerViewModel.intervalCount
-    val timers by timerViewModel.timers
-    val isRunning by timerViewModel.isRunning
-    val currentTimerIndex by timerViewModel.currentTimerIndex
-    val timeRemaining by timerViewModel.timeRemaining
+    val intervalCount = timerViewModel.intervalCount.intValue
+    val timers = timerViewModel.timers
+    val isRunning = timerViewModel.isRunning.value
+    val currentTimerIndex = timerViewModel.currentTimerIndex.intValue
+    val timeRemaining = timerViewModel.timeRemaining.intValue
     val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {

@@ -1,6 +1,6 @@
 package com.example.hiittimer
 
-data class TimerItem(
+data class imerItem(
     val title: String,
     var time: Int
 )
