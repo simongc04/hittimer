@@ -189,6 +189,23 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+
+// Funcion, para validar el nombre del temporizador
+fun ensureUniqueTimerName(timers: List<TimerItem>, proposedName: String, originalName: String? = null): String {
+    if (originalName != null && proposedName == originalName) return proposedName
+
+    var newName = proposedName
+    var counter = 1
+
+    while (timers.any { it.title == newName && it.title != originalName }) {
+        counter++
+        newName = "${proposedName}_$counter"
+    }
+
+    return newName
+}
+
+// Widget de temporizador reutilizable
 @Composable
 fun TimerWidget(
     title: String,
