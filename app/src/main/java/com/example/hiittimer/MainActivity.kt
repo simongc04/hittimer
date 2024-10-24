@@ -52,7 +52,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
             TimerItem("Descanso", 10)
         )
     }
-    var counter = CounterDown(1L)
     var isRunning by remember { mutableStateOf(false) }
     var currentTimerIndex by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
@@ -92,8 +91,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 TimerWidget(
                     title = timers[index].title,
                     time = timers[index].time,
-                    onIncrease = { timers[index].time++ },
-                    onDecrease = { if (timers[index].time > 0) timers[index].time-- }
+                    onIncrease = {
+                        timers[index] = timers[index].copy(time = timers[index].time + 1)
+                    },
+                    onDecrease = {
+                        if (timers[index].time > 0) {
+                            timers[index] = timers[index].copy(time = timers[index].time - 1)
+                        }
+                    }
                 )
             }
         }
@@ -149,6 +154,12 @@ fun TimerWidget(
     onIncrease: () -> Unit,
     onDecrease: () -> Unit
 ) {
+    var displayedTime by remember { mutableIntStateOf(time) }
+
+    LaunchedEffect(time) {
+        displayedTime = time
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(vertical = 16.dp)
@@ -162,18 +173,24 @@ fun TimerWidget(
             Text(
                 text = "➖",
                 fontSize = 24.sp,
-                modifier = Modifier.clickable { if (time > 0) onDecrease() }
+                modifier = Modifier.clickable {
+                    if (displayedTime > 0) {
+                        onDecrease()
+                    }
+                }
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = String.format(Locale.US, "%02d:%02d", time / 60, time % 60),
+                text = String.format(Locale.US, "%02d:%02d", displayedTime / 60, displayedTime % 60),
                 fontSize = 36.sp
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "➕",
                 fontSize = 24.sp,
-                modifier = Modifier.clickable { onIncrease() }
+                modifier = Modifier.clickable {
+                    onIncrease()
+                }
             )
         }
     }
