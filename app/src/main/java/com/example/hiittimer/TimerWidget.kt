@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.*
 
-@Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerWidget(
@@ -40,6 +39,7 @@ fun TimerWidget(
         newTitle = title
     }
 
+    // Usar Card y aplicar el fondo a través de Modifier
     Card(
         modifier = Modifier
             .padding(16.dp)
@@ -68,12 +68,6 @@ fun TimerWidget(
                         .padding(bottom = 8.dp)
                         .background(Color(0xFF1F1F1F)),
                     singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.Transparent,
-                        cursorColor = Color.White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
@@ -85,6 +79,7 @@ fun TimerWidget(
                     )
                 )
             } else {
+                // Mostrar el nombre del temporizador como un Text cuando no está en modo edición
                 Text(
                     text = title,
                     fontSize = 24.sp,
@@ -92,7 +87,7 @@ fun TimerWidget(
                     color = Color.White,
                     modifier = Modifier
                         .padding(bottom = 8.dp)
-                        .clickable { isEditing = true }
+                        .clickable { isEditing = true } // Hacer clic para entrar en modo edición
                 )
             }
 

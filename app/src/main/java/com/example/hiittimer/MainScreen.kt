@@ -20,11 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
-import java.util.*
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel) {
+fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel, navController: NavController) {
     val intervalCount = timerViewModel.intervalCount.intValue
     val timers = timerViewModel.timers
     val isRunning = timerViewModel.isRunning.value
@@ -110,7 +110,12 @@ fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel) {
                 Log.d("MainScreen", "Botón de Play clickeado")
                 if (!isRunning && timers.isNotEmpty()) {
                     Log.d("MainScreen", "Iniciando temporizadores")
-                    coroutineScope.launch { timerViewModel.startTimer() }
+                    navController.navigate("timerScreen") // Navegar a TimerScreen
+                    coroutineScope.launch {
+                        timerViewModel.startTimer {
+                            navController.popBackStack() // Volver a la pantalla inicial una vez terminado
+                        }
+                    }
                 }
             },
             modifier = Modifier
@@ -124,21 +129,6 @@ fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel) {
                 painter = painterResource(id = R.drawable.ic_play),
                 contentDescription = "Play",
                 modifier = Modifier.size(36.dp)
-            )
-        }
-
-        // Muestra el temporizador actual cuando está corriendo
-        if (isRunning && currentTimerIndex < timers.size) {
-            Log.d("MainScreen", "Mostrando temporizador actual")
-            Text(
-                text = "${timers[currentTimerIndex].title}: ${String.format(Locale.US, "%02d:%02d", timeRemaining / 60, timeRemaining % 60)}",
-                fontSize = 24.sp,
-                color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 64.dp)
-                    .background(Color.Gray, shape = CircleShape)
-                    .padding(16.dp)
             )
         }
     }

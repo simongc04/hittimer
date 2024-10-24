@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 
 @Composable
 fun TimerScreen(timer: TimerItem, timeRemaining: Int, backgroundColor: Color, modifier: Modifier = Modifier) {
@@ -29,8 +30,8 @@ fun TimerScreen(timer: TimerItem, timeRemaining: Int, backgroundColor: Color, mo
                 modifier = Modifier.padding(16.dp)
             )
             Text(
-                text = String.format("%02d:%02d", timeRemaining / 60, timeRemaining % 60),
-                fontSize = 48.sp,
+                text = String.format(Locale.getDefault(), "%02d:%02d", timeRemaining / 60, timeRemaining % 60),
+                        fontSize = 48.sp,
                 color = Color.White
             )
         }
