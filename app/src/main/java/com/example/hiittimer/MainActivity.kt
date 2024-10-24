@@ -122,7 +122,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 item {
                     Button(
                         onClick = {
-                            timers.add(TimerItem("Nuevo contador", 10))
+                            val uniqueTimerName = ensureUniqueTimerName(timers, "Nuevo contador")
+                            timers.add(TimerItem(uniqueTimerName, 10))
                         },
                         modifier = Modifier
                             .padding(16.dp)
