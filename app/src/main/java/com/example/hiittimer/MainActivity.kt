@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,18 +28,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val timerViewModel: TimerViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = "mainScreen") {
         composable("mainScreen") {
-            MainScreen(timerViewModel = TimerViewModel(), navController = navController)
+            MainScreen(timerViewModel = timerViewModel, navController = navController)
         }
-        composable("timerScreen") { backStackEntry ->
-            // Recoger parámetros o cualquier argumento adicional necesario.
-            val timerViewModel = TimerViewModel()
-            val timer = timerViewModel.timers.first() // Ejemplo para obtener un temporizador. Puede adaptarse según la lógica.
-
+        composable("timerScreen") {
             TimerScreen(
-                timer = timer,
-                timeRemaining = timerViewModel.timeRemaining.intValue,
+                timerViewModel = timerViewModel,
                 backgroundColor = Color.Blue
             )
         }
