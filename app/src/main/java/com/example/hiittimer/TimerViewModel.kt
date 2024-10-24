@@ -19,7 +19,7 @@ class TimerViewModel : ViewModel() {
     var isRunning = mutableStateOf(false)
     var currentTimerIndex = mutableIntStateOf(0)
 
-    // Métodos para modificar la cantidad de intervalos
+    // Modificar intervalos
     fun increaseIntervalCount() {
         intervalCount.intValue++
     }
@@ -30,7 +30,7 @@ class TimerViewModel : ViewModel() {
         }
     }
 
-    // Métodos para manejar los temporizadores
+    // Manejar los temporizadores
     fun incrementTimer(timer: TimerItem) {
         val index = timers.indexOf(timer)
         if (index != -1) {
@@ -58,26 +58,31 @@ class TimerViewModel : ViewModel() {
         timers.add(TimerItem(uniqueTimerName, 10))
     }
 
-    // Método para iniciar el temporizador
-    fun startTimer() {
+    // Iniciar el temporizador
+    fun startTimer(onCycleFinished: () -> Unit) {
         if (!isRunning.value && timers.isNotEmpty()) {
             isRunning.value = true
-            currentTimerIndex.intValue = 0
-            timeRemaining.intValue = timers[currentTimerIndex.intValue].time
-
             viewModelScope.launch {
-                while (currentTimerIndex.intValue < timers.size && isRunning.value) {
-                    val timer = timers[currentTimerIndex.intValue]
-                    timeRemaining.intValue = timer.time
-                    while (timeRemaining.intValue > 0 && isRunning.value) {
-                        delay(1000L)
-                        timeRemaining.intValue--
+                for (interval in 1..intervalCount.intValue) {
+                    currentInterval.intValue = interval
+                    for (index in timers.indices) {
+                        currentTimerIndex.intValue = index
+                        val timer = timers[index]
+                        timeRemaining.intValue = timer.time
+                        while (timeRemaining.intValue > 0 && isRunning.value) {
+                            delay(1000L)
+                            timeRemaining.intValue--
+                        }
+                        if (!isRunning.value) {
+                            break
+                        }
                     }
-                    if (isRunning.value) {
-                        currentTimerIndex.intValue++
+                    if (!isRunning.value) {
+                        break
                     }
                 }
                 isRunning.value = false
+                onCycleFinished()
             }
         }
     }
