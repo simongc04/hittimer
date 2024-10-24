@@ -50,8 +50,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var timeRemaining by remember { mutableIntStateOf(0) }
     var timers = remember {
         mutableStateListOf(
-            TimerItem("Trabajo", 10),
-            TimerItem("Descanso", 10)
+            TimerItem("Trabajo", 0),
+            TimerItem("Descanso", 0)
         )
     }
     var isRunning by remember { mutableStateOf(false) }
