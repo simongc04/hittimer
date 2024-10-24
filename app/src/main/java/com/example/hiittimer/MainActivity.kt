@@ -1,6 +1,7 @@
 package com.example.hiittimer
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,7 +62,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var currentTimerIndex by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) { // Fondo oscuro
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -114,6 +118,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             if (timer.time > 0) {
                                 timers[index] = timer.copy(time = timer.time - 1)
                             }
+                        },
+                        onNameChange = { newName ->
+                            val index = timers.indexOf(timer)
+                            val uniqueName = ensureUniqueTimerName(timers, newName, timer.title)
+                            timers[index] = timer.copy(title = uniqueName)
                         }
                     )
                 }
@@ -184,7 +193,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 64.dp)
-                    .background(Color.Gray, shape = RoundedCornerShape(8.dp)) // Fondo del temporizador
+                    .background(Color.Gray, shape = RoundedCornerShape(8.dp))
                     .padding(16.dp)
             )
         }
@@ -207,17 +216,25 @@ fun ensureUniqueTimerName(timers: List<TimerItem>, proposedName: String, origina
 }
 
 // Widget de temporizador reutilizable
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerWidget(
     title: String,
     time: Int,
     onIncrease: () -> Unit,
-    onDecrease: () -> Unit
+    onDecrease: () -> Unit,
+    onNameChange: (String) -> Unit
 ) {
     var displayedTime by remember { mutableIntStateOf(time) }
+    var isEditing by remember { mutableStateOf(false) }
+    var newTitle by remember { mutableStateOf(title) }
 
     LaunchedEffect(time) {
         displayedTime = time
+    }
+
+    LaunchedEffect(title) {
+        newTitle = title
     }
 
     // Usar Card y aplicar el fondo a través de Modifier
@@ -234,13 +251,50 @@ fun TimerWidget(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            if (isEditing) {
+                Log.d("TimerWidget", "entrando en modo edición")
+                // TextField para editar el nombre del temporizador
+                TextField(
+                    value = newTitle,
+                    onValueChange = { newTitle = it },
+                    textStyle = LocalTextStyle.current.copy(
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .background(Color(0xFF1F1F1F)),
+                    singleLine = true,
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        cursorColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            Log.d("TimerWidget", "Saliendo del modo edición")
+                            finishEditing(newTitle, onNameChange, title) {
+                                isEditing = false
+                            }
+                        }
+                    )
+                )
+            } else {
+                // Mostrar el nombre del temporizador como un Text cuando no está en modo edición
+                Text(
+                    text = title,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .clickable { isEditing = true } // Hacer clic para entrar en modo edición
+                )
+            }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -274,6 +328,13 @@ fun TimerWidget(
             }
         }
     }
+}
+
+fun finishEditing(newTitle: String, onNameChange: (String) -> Unit, originalTitle: String, onFinish: () -> Unit) {
+    if (newTitle != originalTitle) {
+        onNameChange(newTitle)
+    }
+    onFinish()
 }
 
 @Preview(showBackground = true)
