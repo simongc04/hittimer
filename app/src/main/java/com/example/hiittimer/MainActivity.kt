@@ -4,20 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,14 +58,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var currentTimerIndex by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) { // Fondo oscuro
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxSize()
         ) {
-            Text(text = "Intervalos", fontSize = 24.sp,
-                modifier = Modifier.padding(top = 36.dp))
+            Text(
+                text = "Intervalos",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.padding(top = 36.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -74,14 +80,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Text(
                     text = "➖",
                     fontSize = 24.sp,
+                    color = Color.Green,
                     modifier = Modifier.clickable { if (intervalCount > 1) intervalCount-- }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = intervalCount.toString(), fontSize = 36.sp)
+                Text(text = intervalCount.toString(), fontSize = 36.sp, color = Color.White)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "➕",
                     fontSize = 24.sp,
+                    color = Color.Green,
                     modifier = Modifier.clickable { intervalCount++ }
                 )
             }
@@ -129,7 +137,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     }
                 }
             }
-
         }
 
         // Botón de Play
@@ -158,6 +165,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .padding(16.dp)
                 .clip(CircleShape)
                 .wrapContentSize()
+                .background(Color.Blue) // Color del botón
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_play),
@@ -171,15 +179,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
             Text(
                 text = "${timers[currentTimerIndex].title}: ${String.format(Locale.US, "%02d:%02d", timeRemaining / 60, timeRemaining % 60)}",
                 fontSize = 24.sp,
+                color = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 64.dp)
+                    .background(Color.Gray, shape = RoundedCornerShape(8.dp)) // Fondo del temporizador
+                    .padding(16.dp)
             )
         }
     }
 }
-
-// Widget reutilizable de temporizador
 @Composable
 fun TimerWidget(
     title: String,
@@ -193,38 +202,58 @@ fun TimerWidget(
         displayedTime = time
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(vertical = 16.dp)
+    // Usar Card y aplicar el fondo a través de Modifier
+    Card(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .height(100.dp)
+            .background(Color(0xFF1F1F1F)),
+        shape = RoundedCornerShape(12.dp),
     ) {
-        Text(text = title, fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "➖",
+                text = title,
                 fontSize = 24.sp,
-                modifier = Modifier.clickable {
-                    if (displayedTime > 0) {
-                        onDecrease()
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "➖",
+                    fontSize = 24.sp,
+                    color = Color.Green,
+                    modifier = Modifier.clickable {
+                        if (displayedTime > 0) {
+                            onDecrease()
+                        }
                     }
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = String.format(Locale.US, "%02d:%02d", displayedTime / 60, displayedTime % 60),
-                fontSize = 36.sp
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "➕",
-                fontSize = 24.sp,
-                modifier = Modifier.clickable {
-                    onIncrease()
-                }
-            )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = String.format(Locale.US, "%02d:%02d", displayedTime / 60, displayedTime % 60),
+                    fontSize = 36.sp,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "➕",
+                    fontSize = 24.sp,
+                    color = Color.Green,
+                    modifier = Modifier.clickable {
+                        onIncrease()
+                    }
+                )
+            }
         }
     }
 }
@@ -236,3 +265,4 @@ fun CounterPreview() {
         MainScreen()
     }
 }
+
