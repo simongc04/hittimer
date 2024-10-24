@@ -54,8 +54,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var timeRemaining by remember { mutableIntStateOf(0) }
     var timers = remember {
         mutableStateListOf(
-            TimerItem("Trabajo", 0),
-            TimerItem("Descanso", 0)
+            TimerItem("Trabajo", 10),
+            TimerItem("Descanso", 5)
         )
     }
     var isRunning by remember { mutableStateOf(false) }
@@ -152,19 +152,23 @@ fun MainScreen(modifier: Modifier = Modifier) {
         // Botón de Play
         Button(
             onClick = {
-                if (!isRunning) {
+                Log.d("MainScreen", "Botón de Play clickeado")
+                if (!isRunning && timers.isNotEmpty()) {
+                    Log.d("MainScreen", "Iniciando temporizadores")
                     isRunning = true
                     currentTimerIndex = 0
                     timeRemaining = timers[currentTimerIndex].time
                     coroutineScope.launch {
-                        while (currentTimerIndex < timers.size) {
+                        while (currentTimerIndex < timers.size && isRunning) {
                             val timer = timers[currentTimerIndex]
                             timeRemaining = timer.time
-                            while (timeRemaining > 0) {
+                            while (timeRemaining > 0 && isRunning) {
                                 delay(1000L)
                                 timeRemaining--
                             }
-                            currentTimerIndex++
+                            if (isRunning) {
+                                currentTimerIndex++
+                            }
                         }
                         isRunning = false
                     }
@@ -175,7 +179,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .padding(16.dp)
                 .clip(CircleShape)
                 .wrapContentSize()
-                .background(Color.Blue) // Color del botón
+                .background(Color.Blue)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_play),
@@ -186,6 +190,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
         // Muestra el temporizador actual cuando está corriendo
         if (isRunning && currentTimerIndex < timers.size) {
+            Log.d("MainScreen", "Mostrando temporizador actual")
             Text(
                 text = "${timers[currentTimerIndex].title}: ${String.format(Locale.US, "%02d:%02d", timeRemaining / 60, timeRemaining % 60)}",
                 fontSize = 24.sp,
@@ -216,6 +221,7 @@ fun ensureUniqueTimerName(timers: List<TimerItem>, proposedName: String, origina
 }
 
 // Widget de temporizador reutilizable
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerWidget(
