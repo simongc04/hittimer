@@ -1,5 +1,3 @@
-// Nombre de archivo: MainActivity.kt
-
 package com.example.hiittimer
 
 import android.os.Bundle
