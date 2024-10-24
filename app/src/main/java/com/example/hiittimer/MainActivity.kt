@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -56,51 +57,79 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var currentTimerIndex by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
 
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Text(text = "Intervalos", fontSize = 24.sp)
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = "➖",
-                fontSize = 24.sp,
-                modifier = Modifier.clickable { if (intervalCount > 1) intervalCount-- }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = intervalCount.toString(), fontSize = 36.sp)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "➕",
-                fontSize = 24.sp,
-                modifier = Modifier.clickable { intervalCount++ }
-            )
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(timers.size) { index ->
-                TimerWidget(
-                    title = timers[index].title,
-                    time = timers[index].time,
-                    onIncrease = {
-                        timers[index] = timers[index].copy(time = timers[index].time + 1)
-                    },
-                    onDecrease = {
-                        if (timers[index].time > 0) {
-                            timers[index] = timers[index].copy(time = timers[index].time - 1)
-                        }
-                    }
+            Text(text = "Intervalos", fontSize = 24.sp,
+                modifier = Modifier.padding(top = 36.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "➖",
+                    fontSize = 24.sp,
+                    modifier = Modifier.clickable { if (intervalCount > 1) intervalCount-- }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = intervalCount.toString(), fontSize = 36.sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "➕",
+                    fontSize = 24.sp,
+                    modifier = Modifier.clickable { intervalCount++ }
                 )
             }
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(bottom = 80.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(timers) { timer ->
+                    TimerWidget(
+                        title = timer.title,
+                        time = timer.time,
+                        onIncrease = {
+                            val index = timers.indexOf(timer)
+                            timers[index] = timer.copy(time = timer.time + 1)
+                        },
+                        onDecrease = {
+                            val index = timers.indexOf(timer)
+                            if (timer.time > 0) {
+                                timers[index] = timer.copy(time = timer.time - 1)
+                            }
+                        }
+                    )
+                }
+
+                // Botón para añadir más contadores
+                item {
+                    Button(
+                        onClick = {
+                            timers.add(TimerItem("Nuevo contador", 10))
+                        },
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .clip(CircleShape)
+                            .wrapContentSize()
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_add_alarm),
+                            contentDescription = "Añadir",
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
+                }
+            }
+
         }
 
         // Botón de Play
@@ -125,7 +154,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 }
             },
             modifier = Modifier
-                .padding(top = 32.dp)
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
                 .clip(CircleShape)
                 .wrapContentSize()
         ) {
@@ -136,11 +166,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
             )
         }
 
+        // Muestra el temporizador actual cuando está corriendo
         if (isRunning && currentTimerIndex < timers.size) {
             Text(
                 text = "${timers[currentTimerIndex].title}: ${String.format(Locale.US, "%02d:%02d", timeRemaining / 60, timeRemaining % 60)}",
                 fontSize = 24.sp,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 64.dp)
             )
         }
     }
