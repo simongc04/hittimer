@@ -17,7 +17,9 @@ class TimerViewModel : ViewModel() {
         TimerItem("Descanso", 5)
     )
     var isRunning = mutableStateOf(false)
+    var isPaused = mutableStateOf(false)
     var currentTimerIndex = mutableIntStateOf(0)
+
 
     // Modificar intervalos
     fun increaseIntervalCount() {
@@ -54,7 +56,7 @@ class TimerViewModel : ViewModel() {
     }
 
     fun addNewTimer() {
-        val uniqueTimerName = ensureUniqueTimerName(timers, "Nuevo contador")
+        val uniqueTimerName = ensureUniqueTimerName(timers, "Nuevo temporizador")
         timers.add(TimerItem(uniqueTimerName, 10))
     }
 
@@ -62,6 +64,7 @@ class TimerViewModel : ViewModel() {
     fun startTimer(onCycleFinished: () -> Unit) {
         if (!isRunning.value && timers.isNotEmpty()) {
             isRunning.value = true
+            isPaused.value = false
             viewModelScope.launch {
                 for (interval in 1..intervalCount.intValue) {
                     currentInterval.intValue = interval
@@ -71,7 +74,9 @@ class TimerViewModel : ViewModel() {
                         timeRemaining.intValue = timer.time
                         while (timeRemaining.intValue > 0 && isRunning.value) {
                             delay(1000L)
-                            timeRemaining.intValue--
+                            if (!isPaused.value) {
+                                timeRemaining.intValue--
+                            }
                         }
                         if (!isRunning.value) {
                             break
@@ -85,5 +90,27 @@ class TimerViewModel : ViewModel() {
                 onCycleFinished()
             }
         }
+    }
+
+    // Pausar el temporizador
+    fun pauseTimer() {
+        if (isRunning.value && !isPaused.value) {
+            isPaused.value = true
+        }
+    }
+
+    // Reanudar el temporizador
+    fun resumeTimer() {
+        if (isRunning.value && isPaused.value) {
+            isPaused.value = false
+        }
+    }
+
+    // Reiniciar el temporizador
+    fun resetTimer() {
+        isRunning.value = false
+        isPaused.value = false
+        timeRemaining.intValue = 0
+        currentTimerIndex.intValue = 0
     }
 }
