@@ -70,7 +70,7 @@ fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel, na
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(bottom = 80.dp),
+                    .padding(bottom = 180.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(timers) { timer ->
