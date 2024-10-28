@@ -28,8 +28,6 @@ fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel, na
     val intervalCount = timerViewModel.intervalCount.intValue
     val timers = timerViewModel.timers
     val isRunning = timerViewModel.isRunning.value
-    val currentTimerIndex = timerViewModel.currentTimerIndex.intValue
-    val timeRemaining = timerViewModel.timeRemaining.intValue
     val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {
@@ -104,32 +102,66 @@ fun MainScreen(modifier: Modifier = Modifier, timerViewModel: TimerViewModel, na
             }
         }
 
-        // Botón de Play
-        Button(
-            onClick = {
-                Log.d("MainScreen", "Botón de Play clickeado")
-                if (!isRunning && timers.isNotEmpty()) {
-                    Log.d("MainScreen", "Iniciando temporizadores")
-                    navController.navigate("timerScreen") // Navegar a TimerScreen
-                    coroutineScope.launch {
-                        timerViewModel.startTimer {
-                            navController.popBackStack() // Volver a la pantalla inicial una vez terminado
-                        }
-                    }
-                }
-            },
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .fillMaxWidth()
                 .padding(16.dp)
-                .clip(CircleShape)
-                .wrapContentSize()
-                .background(Color.Blue)
+                .background(Color.DarkGray)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_play),
-                contentDescription = "Play",
-                modifier = Modifier.size(36.dp)
-            )
+            // Botón Guardar Temporizadores
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        timerViewModel.saveTimersToSharedPreferences()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            ) {
+                Text(text = "Guardar Temporizadores")
+            }
+
+            // Botón Cargar Temporizadores
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        timerViewModel.loadTimersFromSharedPreferences()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            ) {
+                Text(text = "Cargar Temporizadores")
+            }
+
+            // Botón de Play
+            Button(
+                onClick = {
+                    Log.d("MainScreen", "Botón de Play clickeado")
+                    if (!isRunning && timers.isNotEmpty()) {
+                        Log.d("MainScreen", "Iniciando temporizadores")
+                        navController.navigate("timerScreen") // Navegar a TimerScreen
+                        coroutineScope.launch {
+                            timerViewModel.startTimer {
+                                navController.popBackStack() // Volver a la pantalla inicial una vez terminado
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(CircleShape)
+                    .background(Color.Blue)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_play),
+                    contentDescription = "Play",
+                    modifier = Modifier.size(36.dp)
+                )
+            }
         }
     }
 }
