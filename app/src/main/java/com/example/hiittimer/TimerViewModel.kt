@@ -163,8 +163,8 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         isPaused.value = false
         timeRemaining.intValue = 0
         currentTimerIndex.intValue = 0
-        mediaPlayer?.release() // Liberar el MediaPlayer al reiniciar
-        mediaPlayer = null // Asegurar que no haya referencias a un MediaPlayer liberado
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 }
 
