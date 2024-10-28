@@ -154,14 +154,4 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             isPaused.value = false
         }
     }
-
-    // Reiniciar el temporizador
-    fun resetTimer() {
-        isRunning.value = false
-        isPaused.value = false
-        timeRemaining.intValue = 0
-        currentTimerIndex.intValue = 0
-        mediaPlayer?.release()
-        mediaPlayer = null
-    }
 }
