@@ -25,9 +25,22 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     val context = application.applicationContext
     var mediaPlayer: MediaPlayer? = null
 
+    private val sharedPreferencesHelper = SharedPreferencesHelper(context)
+
+    // Leer timers de memoria
+    fun loadTimersFromSharedPreferences() {
+        timers.clear()
+        timers.addAll(sharedPreferencesHelper.getTimers())
+    }
+
+    // Guardar timers en memoria
+    fun saveTimersToSharedPreferences() {
+        sharedPreferencesHelper.saveTimers(timers)
+    }
+
     // Función para reproducir sonidos
     private fun playSound(soundResourceId: Int, duration: Long? = null) {
-        mediaPlayer?.release() // Liberar el MediaPlayer anterior si existe
+        mediaPlayer?.release()
         mediaPlayer = MediaPlayer.create(context, soundResourceId).apply {
             start()
             duration?.let {
