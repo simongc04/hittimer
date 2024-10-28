@@ -96,12 +96,10 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         timers.add(TimerItem(uniqueTimerName, 10))
     }
 
-    // Iniciar el temporizador
     fun startTimer(onCycleFinished: () -> Unit) {
         if (!isRunning.value && timers.isNotEmpty()) {
             isRunning.value = true
             isPaused.value = false
-            playSound(R.raw.start_sound, 1000) // Reproducir sonido de inicio por 1 segundo
             viewModelScope.launch {
                 for (interval in 1..intervalCount.intValue) {
                     currentInterval.intValue = interval
@@ -110,6 +108,10 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                         val timer = timers[index]
                         timeRemaining.intValue = timer.time
 
+                        // Reproducir el sonido de inicio para cada temporizador al comienzo
+                        playSound(R.raw.start_sound, 1000)
+
+                        // Iniciar el conteo regresivo para el temporizador actual
                         while (timeRemaining.intValue > 0 && isRunning.value) {
                             delay(1000L)
 
@@ -165,3 +167,4 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         mediaPlayer = null // Asegurar que no haya referencias a un MediaPlayer liberado
     }
 }
+
