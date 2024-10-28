@@ -45,7 +45,7 @@ fun TimerWidget(
             .padding(16.dp)
             .fillMaxWidth()
             .height(100.dp)
-            .background(Color(0xFF1F1F1F)),
+            .background(Color(0xFFE0E0E0)), // Fondo claro para que el texto negro contraste
         shape = RoundedCornerShape(12.dp),
     ) {
         Column(
@@ -54,7 +54,7 @@ fun TimerWidget(
             modifier = Modifier.fillMaxSize()
         ) {
             if (isEditing) {
-                Log.d("TimerWidget", "entrando en modo edición")
+                Log.d("TimerWidget", "Entrando en modo edición")
                 // TextField para editar el nombre del temporizador
                 TextField(
                     value = newTitle,
@@ -62,11 +62,11 @@ fun TimerWidget(
                     textStyle = LocalTextStyle.current.copy(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.Black // Cambiar el color del texto a negro
                     ),
                     modifier = Modifier
                         .padding(bottom = 8.dp)
-                        .background(Color(0xFF1F1F1F)),
+                        .background(Color(0xFFE0E0E0)),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
@@ -84,7 +84,7 @@ fun TimerWidget(
                     text = title,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = Color.Black, // Cambiar el color del texto a negro
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .clickable { isEditing = true } // Hacer clic para entrar en modo edición
@@ -110,7 +110,7 @@ fun TimerWidget(
                 Text(
                     text = String.format(Locale.US, "%02d:%02d", displayedTime / 60, displayedTime % 60),
                     fontSize = 36.sp,
-                    color = Color.White
+                    color = Color.Black
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
