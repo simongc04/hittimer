@@ -1,14 +1,16 @@
 package com.example.hiittimer
 
+import android.app.Application
+import android.media.MediaPlayer
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class TimerViewModel : ViewModel() {
+class TimerViewModel(application: Application) : AndroidViewModel(application) {
     var intervalCount = mutableIntStateOf(1)
     var currentInterval = mutableIntStateOf(1)
     var timeRemaining = mutableIntStateOf(0)
@@ -20,6 +22,27 @@ class TimerViewModel : ViewModel() {
     var isPaused = mutableStateOf(false)
     var currentTimerIndex = mutableIntStateOf(0)
 
+    val context = application.applicationContext
+    var mediaPlayer: MediaPlayer? = null
+
+    // Función para reproducir sonidos
+    private fun playSound(soundResourceId: Int, duration: Long? = null) {
+        mediaPlayer?.release() // Liberar el MediaPlayer anterior si existe
+        mediaPlayer = MediaPlayer.create(context, soundResourceId).apply {
+            start()
+            duration?.let {
+                // Detener el sonido después de un tiempo específico
+                val handler = android.os.Handler()
+                handler.postDelayed({
+                    if (isPlaying) {
+                        stop()
+                        release()
+                    }
+                }, it)
+            }
+            setOnCompletionListener { release() }
+        }
+    }
 
     // Modificar intervalos
     fun increaseIntervalCount() {
@@ -65,6 +88,7 @@ class TimerViewModel : ViewModel() {
         if (!isRunning.value && timers.isNotEmpty()) {
             isRunning.value = true
             isPaused.value = false
+            playSound(R.raw.start_sound, 1000) // Reproducir sonido de inicio por 1 segundo
             viewModelScope.launch {
                 for (interval in 1..intervalCount.intValue) {
                     currentInterval.intValue = interval
@@ -72,20 +96,31 @@ class TimerViewModel : ViewModel() {
                         currentTimerIndex.intValue = index
                         val timer = timers[index]
                         timeRemaining.intValue = timer.time
+
                         while (timeRemaining.intValue > 0 && isRunning.value) {
                             delay(1000L)
+
                             if (!isPaused.value) {
                                 timeRemaining.intValue--
+
+                                // Reproducir sonido en los últimos 3 segundos del temporizador
+                                if (timeRemaining.intValue in 1..3) {
+                                    playSound(R.raw.finish_sound) // Para el descanso y el trabajo
+                                }
                             }
                         }
+
                         if (!isRunning.value) {
                             break
                         }
+                        playSound(R.raw.cycle_end_sound) // Reproducir sonido de fin de ciclo
                     }
+
                     if (!isRunning.value) {
                         break
                     }
                 }
+
                 isRunning.value = false
                 onCycleFinished()
             }
@@ -96,6 +131,7 @@ class TimerViewModel : ViewModel() {
     fun pauseTimer() {
         if (isRunning.value && !isPaused.value) {
             isPaused.value = true
+            playSound(R.raw.pause_sound) // Reproducir sonido de pausa
         }
     }
 
@@ -112,5 +148,7 @@ class TimerViewModel : ViewModel() {
         isPaused.value = false
         timeRemaining.intValue = 0
         currentTimerIndex.intValue = 0
+        mediaPlayer?.release() // Liberar el MediaPlayer al reiniciar
+        mediaPlayer = null // Asegurar que no haya referencias a un MediaPlayer liberado
     }
 }
