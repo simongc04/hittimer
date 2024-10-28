@@ -4,11 +4,11 @@ La aplicación es un temporizador para entrenamientos HIIT (High-Intensity Inter
 
 ## funcionalidades
 
--Inicio y Manejo del Temporizador
--Configuración de Intervalos
--Pausa y Reanudación 
--Reinicio del Temporizador
--Gestión de Audio
+### -Inicio y Manejo del Temporizador
+### -Configuración de Intervalos
+### -Pausa y Reanudación 
+### -Reinicio del Temporizador
+### -Gestión de Audio
 
 
 ## pantalas
